@@ -1,3 +1,5 @@
+![sql-dog](https://github.com/tkc/sql-dog/workflows/sql-dog/badge.svg?branch=master)
+
 # sql-dog
 
 Parse the query log in sql and output a report with specific conditions.
