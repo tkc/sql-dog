@@ -75,10 +75,16 @@ func checkNilValue(in ast.Node, analyzer *model.Analyzer) {
 func (v *Visitor) Enter(in ast.Node) (ast.Node, bool) {
 
 	// TableName
-	if tableName, ok := in.(*ast.TableName); ok {
-		// TODO : sub query
+	if TableSource, ok := in.(*ast.TableSource); ok {
 		if len(v.Analyzer.TableName) == 0 {
-			v.Analyzer.TableName = tableName.Name.String()
+			if tableName, ok := TableSource.Source.(*ast.TableName); ok {
+				if len(v.Analyzer.TableName) == 0 {
+					v.Analyzer.TableName = tableName.Name.String()
+				}
+			}
+			if len(TableSource.AsName.String()) > 0 {
+				v.Analyzer.TableName = TableSource.AsName.String()
+			}
 		}
 	}
 
