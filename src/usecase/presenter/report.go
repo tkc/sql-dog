@@ -59,6 +59,9 @@ func (p reportPresenter) Show(reports []model.Report) {
 
 		if len(report.ValidatorNode.NullValueOperation) > 0 {
 			color.Magenta("NullValueOperation")
+			for _, notNullColumn := range report.ValidatorNode.NullValueOperation {
+				color.White(notNullColumn.Column)
+			}
 		}
 	}
 }

@@ -7,8 +7,7 @@ import (
 const errorMessageNullColumn = "fail null column check : "
 const errorMessageInsertColumn = "fail insert column check :"
 const errorMessageOperation = "fail operations check : "
-
-//const errorMessageNilValueOperation = "fail nil value check : "
+const errorMessageNilValueOperation = "fail nil value check : "
 
 type validateService struct{}
 
@@ -30,25 +29,26 @@ func (v validateService) Validates(analyzers []model.Analyzer, validator model.V
 	return reports
 }
 
-func validate(analyzer model.Analyzer, node *model.ValidatorNode, ignores []string) *model.Report {
+func isIgnoreTable(analyzer model.Analyzer, node *model.ValidatorNode, ignores []string) bool {
 	for _, ignore := range ignores {
 		if analyzer.SQL == ignore {
-			return nil
+			return true
 		}
 	}
-
 	if analyzer.TableName != node.TableName {
-		return nil
+		return true
 	}
-
 	stmtTypeMatch := false
 	for _, stmtTypes := range node.StmtTypePattern {
 		if analyzer.StmtType == stmtTypes {
 			stmtTypeMatch = true
 		}
 	}
+	return !stmtTypeMatch
+}
 
-	if !stmtTypeMatch {
+func validate(analyzer model.Analyzer, node *model.ValidatorNode, ignores []string) *model.Report {
+	if isIgnoreTable(analyzer, node, ignores) {
 		return nil
 	}
 
@@ -91,6 +91,13 @@ func validate(analyzer model.Analyzer, node *model.ValidatorNode, ignores []stri
 		if !valid {
 			node.Operations[i].Valid = false
 			node.Messages = append(node.Messages, errorMessageOperation+node.Operations[i].Column)
+		}
+	}
+
+	if len(analyzer.NullValueOperation) > 0 {
+		node.NullValueOperation = analyzer.NullValueOperation
+		for _, analyzerOperation := range analyzer.NullValueOperation {
+			node.Messages = append(node.Messages, errorMessageNilValueOperation+analyzerOperation.Column)
 		}
 	}
 
