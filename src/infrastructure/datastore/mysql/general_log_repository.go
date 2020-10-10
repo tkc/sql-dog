@@ -1,8 +1,9 @@
 package mysql
 
 import (
-	"gorm.io/gorm"
 	"sql-dog/src/domain/model"
+
+	"gorm.io/gorm"
 )
 
 const logTableName = "general_log"

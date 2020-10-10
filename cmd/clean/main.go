@@ -11,5 +11,7 @@ func main() {
 		"localhost",
 		3306)
 	repo := mysql.NewGeneralLogRepository(handler)
-	repo.Clear()
+	if err := repo.Clear(); err != nil {
+		panic(err)
+	}
 }

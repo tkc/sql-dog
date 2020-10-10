@@ -7,34 +7,24 @@ import (
 const errorMessageNullColumn = "fail null column check : "
 const errorMessageInsertColumn = "fail insert column check :"
 const errorMessageOperation = "fail operations check : "
-const errorMessageNilValueOperation = "fail nil value check : "
 
-type validatesService struct{}
+//const errorMessageNilValueOperation = "fail nil value check : "
 
-func NewValidatesService() validatesService {
-	return validatesService{}
+type validateService struct{}
+
+func NewValidatesService() ValidateService {
+	return validateService{}
 }
 
-func (v validatesService) Validates(analyzers []model.Analyzer, validator model.Validator) []model.Report {
+func (v validateService) Validates(analyzers []model.Analyzer, validator model.Validator) []model.Report {
 	var reports []model.Report
 	for _, analyzer := range analyzers {
 		for _, node := range validator.Nodes {
+			node := node
 			res := validate(analyzer, &node, validator.Ignores)
 			if res != nil {
 				reports = append(reports, *res)
 			}
-		}
-	}
-
-	for _, analyzer := range analyzers {
-		if len(analyzer.NullValueOperation) > 0 {
-			reports = append(reports, model.Report{
-				Analyzer: analyzer,
-				ValidatorNode: &model.ValidatorNode{
-					TableName:          analyzer.TableName,
-					NullValueOperation: analyzer.NullValueOperation,
-				},
-			})
 		}
 	}
 	return reports
@@ -62,7 +52,7 @@ func validate(analyzer model.Analyzer, node *model.ValidatorNode, ignores []stri
 		return nil
 	}
 
-	for i, _ := range node.NotNullColumns {
+	for i := range node.NotNullColumns {
 		node.NotNullColumns[i].Valid = true
 		valid := false
 		for _, analyzerNotNullColumn := range analyzer.NotNullColumns {
@@ -76,7 +66,7 @@ func validate(analyzer model.Analyzer, node *model.ValidatorNode, ignores []stri
 		}
 	}
 
-	for i, _ := range node.InsertColumns {
+	for i := range node.InsertColumns {
 		node.InsertColumns[i].Valid = true
 		valid := false
 		for _, analyzerInsertColumns := range analyzer.InsertColumns {
@@ -90,7 +80,7 @@ func validate(analyzer model.Analyzer, node *model.ValidatorNode, ignores []stri
 		}
 	}
 
-	for i, _ := range node.Operations {
+	for i := range node.Operations {
 		node.Operations[i].Valid = true
 		valid := false
 		for _, analyzerOperation := range analyzer.Operations {

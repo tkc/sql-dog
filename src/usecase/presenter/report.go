@@ -1,9 +1,10 @@
 package presenter
 
 import (
+	"sql-dog/src/domain/model"
+
 	"github.com/fatih/color"
 	"github.com/kyokomi/emoji"
-	"sql-dog/src/domain/model"
 )
 
 type reportPresenter struct{}

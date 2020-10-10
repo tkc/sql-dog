@@ -1,15 +1,12 @@
 package services
 
 import (
-	"github.com/pingcap/parser/ast"
-	"github.com/pingcap/parser/test_driver"
-	_ "github.com/pingcap/parser/test_driver"
-	"log"
-	"reflect"
 	"sql-dog/src/domain/model"
 	"strings"
 
 	"github.com/pingcap/parser"
+	"github.com/pingcap/parser/ast"
+	"github.com/pingcap/parser/test_driver"
 )
 
 type analyzerService struct{}
@@ -38,47 +35,52 @@ type Visitor struct {
 	Analyzer model.Analyzer
 }
 
-func checkNilValue(in ast.Node, analyzer *model.Analyzer) {
-	if patternInExpr, ok := in.(*ast.PatternInExpr); ok {
-		if valueExpr, ok := patternInExpr.List[0].(*test_driver.ValueExpr); ok {
-			if valueExpr.Datum.GetValue() == nil {
-				var nullValueOperation model.AnalyzerNullValueOperation
-				nullValueOperation.TableName = analyzer.TableName
-				nullValueOperation.Value = valueExpr.Datum.GetValue()
-				nullValueOperation.Type = model.OpTypeIn
-				if columnNameExpr, ok := patternInExpr.Expr.(*ast.ColumnNameExpr); ok {
-					nullValueOperation.Column = columnNameExpr.Name.String()
-				}
-				analyzer.NullValueOperation = append(analyzer.NullValueOperation, nullValueOperation)
-			}
-		}
-	}
-
-	if binaryOperationExpr, ok := in.(*ast.BinaryOperationExpr); ok {
-		if binaryOperationExpr.Op.String() == string(model.OpTypeEq) {
-			if valueExpr, ok := binaryOperationExpr.R.(*test_driver.ValueExpr); ok {
-				if valueExpr.Datum.GetValue() == nil {
-					var nullValueOperation model.AnalyzerNullValueOperation
-					nullValueOperation.TableName = analyzer.TableName
-					nullValueOperation.Value = valueExpr.Datum.GetValue()
-					nullValueOperation.Type = model.OpTypeEq
-					if columnNameExpr, ok := binaryOperationExpr.R.(*ast.ColumnNameExpr); ok {
-						nullValueOperation.Column = columnNameExpr.Name.String()
-					}
-					analyzer.NullValueOperation = append(analyzer.NullValueOperation, nullValueOperation)
-				}
-			}
-		}
-	}
-}
+//func checkNilValue(in ast.Node, analyzer *model.Analyzer) {
+//	if patternInExpr, ok := in.(*ast.PatternInExpr); ok {
+//		if valueExpr, ok := patternInExpr.List[0].(*test_driver.ValueExpr); ok {
+//			if valueExpr.Datum.GetValue() == nil {
+//				var nullValueOperation model.AnalyzerNullValueOperation
+//				nullValueOperation.TableName = analyzer.TableName
+//				nullValueOperation.Value = valueExpr.Datum.GetValue()
+//				nullValueOperation.Type = model.OpTypeIn
+//				if columnNameExpr, ok := patternInExpr.Expr.(*ast.ColumnNameExpr); ok {
+//					nullValueOperation.Column = columnNameExpr.Name.String()
+//				}
+//				analyzer.NullValueOperation = append(analyzer.NullValueOperation, nullValueOperation)
+//			}
+//		}
+//	}
+//
+//	if binaryOperationExpr, ok := in.(*ast.BinaryOperationExpr); ok {
+//		if binaryOperationExpr.Op.String() == string(model.OpTypeEq) {
+//			if valueExpr, ok := binaryOperationExpr.R.(*test_driver.ValueExpr); ok {
+//				if valueExpr.Datum.GetValue() == nil {
+//					var nullValueOperation model.AnalyzerNullValueOperation
+//					nullValueOperation.TableName = analyzer.TableName
+//					nullValueOperation.Value = valueExpr.Datum.GetValue()
+//					nullValueOperation.Type = model.OpTypeEq
+//					if columnNameExpr, ok := binaryOperationExpr.R.(*ast.ColumnNameExpr); ok {
+//						nullValueOperation.Column = columnNameExpr.Name.String()
+//					}
+//					analyzer.NullValueOperation = append(analyzer.NullValueOperation, nullValueOperation)
+//				}
+//			}
+//		}
+//	}
+//}
 
 func (v *Visitor) Enter(in ast.Node) (ast.Node, bool) {
-
 	// TableName
-	if tableName, ok := in.(*ast.TableName); ok {
-		// TODO : sub query
+	if TableSource, ok := in.(*ast.TableSource); ok {
 		if len(v.Analyzer.TableName) == 0 {
-			v.Analyzer.TableName = tableName.Name.String()
+			if tableName, ok := TableSource.Source.(*ast.TableName); ok {
+				if len(v.Analyzer.TableName) == 0 {
+					v.Analyzer.TableName = tableName.Name.String()
+				}
+			}
+			if len(TableSource.AsName.String()) > 0 {
+				v.Analyzer.TableName = TableSource.AsName.String()
+			}
 		}
 	}
 
@@ -126,7 +128,6 @@ func (v *Visitor) Enter(in ast.Node) (ast.Node, bool) {
 
 	// patternInExpr
 	if patternInExpr, ok := in.(*ast.PatternInExpr); ok {
-
 		var operation model.AnalyzerOperation
 		operation.Type = model.OpTypeIn
 
@@ -135,11 +136,11 @@ func (v *Visitor) Enter(in ast.Node) (ast.Node, bool) {
 		}
 
 		if valueExpr, ok := patternInExpr.List[0].(*test_driver.ValueExpr); ok {
-		operation.Value = valueExpr.Datum.GetInt64()
+			operation.Value = valueExpr.Datum.GetInt64()
 		}
 
 		//if columnNameExpr, ok := patternInExpr.List[0].(*ast.ColumnNameExpr); ok {
-		 //operation.Value = columnNameExpr..GetInt64()
+		//operation.Value = columnNameExpr..GetInt64()
 		//}
 
 		v.Analyzer.Operations = append(v.Analyzer.Operations, operation)
@@ -148,12 +149,10 @@ func (v *Visitor) Enter(in ast.Node) (ast.Node, bool) {
 	// BinaryOperationExpr
 	if binaryOperationExpr, ok := in.(*ast.BinaryOperationExpr); ok {
 		if binaryOperationExpr.Op.String() == string(model.OpTypeEq) {
-
 			var operation model.AnalyzerOperation
 			operation.Type = model.OpType(binaryOperationExpr.Op.String())
 
 			if columnNameExpr, ok := binaryOperationExpr.L.(*ast.ColumnNameExpr); ok {
-				// TODO : table name
 				operation.Column = formatColumnName(columnNameExpr.Name.String(), v.Analyzer.TableName)
 			}
 
@@ -187,7 +186,7 @@ func formatColumnName(column string, tableName string) string {
 	return column
 }
 
-func debug(in interface{}) {
-	log.Print("---debug---")
-	log.Print(reflect.TypeOf(in))
-}
+//func debug(in interface{}) {
+//	log.Print("---debug---")
+//	log.Print(reflect.TypeOf(in))
+//}

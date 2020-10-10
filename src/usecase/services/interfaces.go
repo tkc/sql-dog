@@ -1,8 +1,9 @@
 package services
 
 import (
-	"github.com/pingcap/parser/ast"
 	"sql-dog/src/domain/model"
+
+	"github.com/pingcap/parser/ast"
 )
 
 type AnalyzerService interface {
@@ -14,6 +15,6 @@ type ReportService interface {
 	Show(validator model.Validator)
 }
 
-type ValidatesService interface {
+type ValidateService interface {
 	Validates(analyzers []model.Analyzer, validator model.Validator) []model.Report
 }
