@@ -64,6 +64,9 @@ func (v ValidatorNode) HasError() bool {
 	if v.HasInsertColumnsError() {
 		return true
 	}
+	if v.HasNullValueOperationError() {
+		return true
+	}
 	return false
 }
 
@@ -92,6 +95,10 @@ func (v ValidatorNode) HasInsertColumnsError() bool {
 		}
 	}
 	return false
+}
+
+func (v ValidatorNode) HasNullValueOperationError() bool {
+	return len(v.NullValueOperation) > 0
 }
 
 type Report struct {
