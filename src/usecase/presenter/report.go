@@ -1,9 +1,10 @@
 package presenter
 
 import (
+	"sql-dog/src/domain/model"
+
 	"github.com/fatih/color"
 	"github.com/kyokomi/emoji"
-	"sql-dog/src/domain/model"
 )
 
 type reportPresenter struct{}
@@ -15,7 +16,7 @@ func NewReportPresenter() ReportPresenter {
 func (p reportPresenter) Show(reports []model.Report) {
 	if len(reports) == 0 {
 		beer := emoji.Sprint(":beer:")
-		color.Magenta(beer + beer + beer + "No Report !!")
+		color.Magenta(beer + "No Report !!")
 	}
 
 	for _, report := range reports {

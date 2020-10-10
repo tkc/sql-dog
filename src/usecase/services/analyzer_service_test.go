@@ -1,10 +1,11 @@
 package services
 
 import (
-	"github.com/stretchr/testify/assert"
 	"log"
 	"sql-dog/src/domain/model"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSelectQueries(t *testing.T) {
@@ -29,7 +30,7 @@ func TestSelectQueries(t *testing.T) {
 					{
 						Type:   model.OpTypeIn,
 						Column: "c_a",
-						Value: int64(1),
+						Value:  int64(1),
 					},
 				},
 				StmtType:       model.StmtTypeSelect,
@@ -44,12 +45,12 @@ func TestSelectQueries(t *testing.T) {
 					{
 						Type:   model.OpTypeEq,
 						Column: "c_a",
-						Value: int64(1),
+						Value:  int64(1),
 					},
 					{
 						Type:   model.OpTypeIn,
 						Column: "c_b",
-						Value: int64(1),
+						Value:  int64(1),
 					},
 				},
 				StmtType:       model.StmtTypeSelect,
@@ -64,17 +65,17 @@ func TestSelectQueries(t *testing.T) {
 					{
 						Type:   model.OpTypeEq,
 						Column: "c_a",
-						Value: int64(1),
+						Value:  int64(1),
 					},
 					{
 						Type:   model.OpTypeEq,
 						Column: "c_b",
-						Value: int64(1),
+						Value:  int64(1),
 					},
 					{
 						Type:   model.OpTypeEq,
 						Column: "c_c",
-						Value: int64(1),
+						Value:  int64(1),
 					},
 				},
 				StmtType:       model.StmtTypeSelect,
@@ -82,29 +83,37 @@ func TestSelectQueries(t *testing.T) {
 			},
 		},
 		{
-			query: "select * from table_a as tb_a, (SELECT c_a ,min(c_b) as  from table_b group by c_c) as tb_b where c_a = 1 and c_b in (1) and c_c = 1",
+			query: "select * from table_a where c_a = 1 and c_b in (1) and c_c = 1",
 			analyzer: model.Analyzer{
 				TableName: "table_a",
 				Operations: []model.AnalyzerOperation{
 					{
 						Type:   model.OpTypeEq,
 						Column: "c_a",
-						Value: int64(1),
-
+						Value:  int64(1),
 					},
 					{
 						Type:   model.OpTypeIn,
 						Column: "c_b",
-						Value: int64(1),
+						Value:  int64(1),
 					},
 					{
 						Type:   model.OpTypeEq,
 						Column: "c_c",
-						Value: int64(1),
+						Value:  int64(1),
 					},
 				},
 				StmtType:       model.StmtTypeSelect,
 				NotNullColumns: nil,
+			},
+		},
+		{
+			query: "select * from table_a as as_table_name_a WHERE `deleted_at` IS NULL",
+			analyzer: model.Analyzer{
+				TableName:      "as_table_name_a",
+				Operations:     nil,
+				StmtType:       model.StmtTypeSelect,
+				NotNullColumns: []string{"deleted_at"},
 			},
 		},
 	}
@@ -114,8 +123,7 @@ func TestSelectQueries(t *testing.T) {
 	for _, c := range cases {
 		astNode, err := analyzerService.Parse(c.query)
 		if err != nil {
-			log.Print(err)
-			return
+			panic(err)
 		}
 		v := &Visitor{}
 		(astNode).Accept(v)
@@ -163,4 +171,3 @@ func TestInsertQueries(t *testing.T) {
 		assert.Equal(t, c.analyzer.InsertColumns, analyzer.InsertColumns)
 	}
 }
-

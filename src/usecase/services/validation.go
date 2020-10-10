@@ -4,65 +4,51 @@ import (
 	"sql-dog/src/domain/model"
 )
 
-const errorMessageNullColumn = "fail null column check : "
-const errorMessageInsertColumn = "fail insert column check :"
-const errorMessageOperation = "fail operations check : "
-const errorMessageNilValueOperation = "fail nil value check : "
+const errorMessageNullColumn = "fail mast not null column check : "
+const errorMessageInsertColumn = "fail required insert column check :"
+const errorMessageOperation = "fail required where operations check : "
 
-type validatesService struct{}
+// const errorMessageNilValueOperation = "fail nil value check : "
 
-func NewValidatesService() validatesService {
-	return validatesService{}
+type validateService struct{}
+
+func NewValidatesService() ValidateService {
+	return validateService{}
 }
 
-func (v validatesService) Validates(analyzers []model.Analyzer, validator model.Validator) []model.Report {
+func (s validateService) Validates(analyzers []model.Analyzer, validator model.Validator) []model.Report {
 	var reports []model.Report
 	for _, analyzer := range analyzers {
 		for _, node := range validator.Nodes {
-			res := validate(analyzer, &node, validator.Ignores)
+			node := node
+			res := s.Validate(analyzer, &node, validator.Ignores)
 			if res != nil {
 				reports = append(reports, *res)
 			}
 		}
 	}
 
-	for _, analyzer := range analyzers {
-		if len(analyzer.NullValueOperation) > 0 {
-			reports = append(reports, model.Report{
-				Analyzer: analyzer,
-				ValidatorNode: &model.ValidatorNode{
-					TableName:          analyzer.TableName,
-					NullValueOperation: analyzer.NullValueOperation,
-				},
-			})
-		}
-	}
+	//for _, analyzer := range analyzers {
+	//	if len(analyzer.NullValueOperation) > 0 {
+	//		reports = append(reports, model.Report{
+	//			Analyzer: analyzer,
+	//			ValidatorNode: &model.ValidatorNode{
+	//				TableName:          analyzer.TableName,
+	//				NullValueOperation: analyzer.NullValueOperation,
+	//			},
+	//		})
+	//	}
+	//}
+
 	return reports
 }
 
-func validate(analyzer model.Analyzer, node *model.ValidatorNode, ignores []string) *model.Report {
-	for _, ignore := range ignores {
-		if analyzer.SQL == ignore {
-			return nil
-		}
-	}
-
-	if analyzer.TableName != node.TableName {
+func (s validateService) Validate(analyzer model.Analyzer, node *model.ValidatorNode, ignores []string) *model.Report {
+	if isIgnoreQuery(analyzer, node, ignores) {
 		return nil
 	}
 
-	stmtTypeMatch := false
-	for _, stmtTypes := range node.StmtTypePattern {
-		if analyzer.StmtType == stmtTypes {
-			stmtTypeMatch = true
-		}
-	}
-
-	if !stmtTypeMatch {
-		return nil
-	}
-
-	for i, _ := range node.NotNullColumns {
+	for i := range node.NotNullColumns {
 		node.NotNullColumns[i].Valid = true
 		valid := false
 		for _, analyzerNotNullColumn := range analyzer.NotNullColumns {
@@ -76,7 +62,7 @@ func validate(analyzer model.Analyzer, node *model.ValidatorNode, ignores []stri
 		}
 	}
 
-	for i, _ := range node.InsertColumns {
+	for i := range node.InsertColumns {
 		node.InsertColumns[i].Valid = true
 		valid := false
 		for _, analyzerInsertColumns := range analyzer.InsertColumns {
@@ -90,7 +76,7 @@ func validate(analyzer model.Analyzer, node *model.ValidatorNode, ignores []stri
 		}
 	}
 
-	for i, _ := range node.Operations {
+	for i := range node.Operations {
 		node.Operations[i].Valid = true
 		valid := false
 		for _, analyzerOperation := range analyzer.Operations {
@@ -111,4 +97,25 @@ func validate(analyzer model.Analyzer, node *model.ValidatorNode, ignores []stri
 		}
 	}
 	return nil
+}
+
+func isIgnoreQuery(analyzer model.Analyzer, node *model.ValidatorNode, ignores []string) bool {
+	for _, ignore := range ignores {
+		if analyzer.SQL == ignore {
+			return true
+		}
+	}
+	if analyzer.TableName != node.TableName {
+		return true
+	}
+
+	// Checking the Type of stmt
+	stmtTypeMatch := false
+	for _, stmtTypes := range node.StmtTypePattern {
+		if analyzer.StmtType == stmtTypes {
+			stmtTypeMatch = true
+		}
+	}
+
+	return !stmtTypeMatch
 }

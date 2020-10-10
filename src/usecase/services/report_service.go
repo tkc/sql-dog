@@ -10,14 +10,14 @@ import (
 type reportService struct {
 	generalLogRepository mysql.GeneralLogRepository
 	analyzerService      AnalyzerService
-	validatesService     ValidatesService
+	validatesService     ValidateService
 	reportPresenter      presenter.ReportPresenter
 }
 
 func NewReportService(
 	generalLogRepository mysql.GeneralLogRepository,
 	analyzerService AnalyzerService,
-	validatesService ValidatesService,
+	validatesService ValidateService,
 	reportPresenter presenter.ReportPresenter) ReportService {
 	return reportService{
 		generalLogRepository,

@@ -18,16 +18,6 @@ func NewMySQLHandler(username, password, host string, port int) (*gorm.DB, func(
 	)
 }
 
-//func NewMySQLHandler() (*gorm.DB, func() error, error) {
-//	return newSQLHandler(
-//		"root",
-//		"password",
-//		"localhost",
-//		3306,
-//		"mysql",
-//	)
-//}
-
 func newSQLHandler(userName, password, host string, port int, dbname string) (*gorm.DB, func() error, error) {
 	if _, err := time.LoadLocation("UTC"); err != nil {
 		return nil, nil, err
@@ -56,6 +46,5 @@ func newSQLHandler(userName, password, host string, port int, dbname string) (*g
 		return nil, nil, err
 	}
 
-	conn.Set("gorm:table_options", "ENGINE=InnoDB")
 	return conn, db.Close, nil
 }

@@ -1,9 +1,10 @@
 package services
 
 import (
-	"github.com/stretchr/testify/assert"
 	"sql-dog/src/domain/model"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestValidators(t *testing.T) {
@@ -34,7 +35,7 @@ func TestValidators(t *testing.T) {
 				Operations:      nil,
 				StmtTypePattern: []model.StmtType{model.StmtTypeSelect},
 				NotNullColumns: []model.ValidateColumn{
-					model.ValidateColumn{
+					{
 						Column: "deleted_at",
 					},
 				},
@@ -105,8 +106,9 @@ func TestValidators(t *testing.T) {
 		},
 	}
 
+	v := NewValidatesService()
 	for _, c := range cases {
-		result := validate(c.analyzer, &c.validator, nil)
+		result := v.Validate(c.analyzer, &c.validator, nil)
 		assert.Equal(t, c.want, result == nil)
 	}
 }

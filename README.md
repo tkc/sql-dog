@@ -1,4 +1,5 @@
 ![sql-dog](https://github.com/tkc/sql-dog/workflows/sql-dog/badge.svg?branch=master)
+![reviewdog](https://github.com/tkc/sql-dog/workflows/reviewdog/badge.svg)
 
 # sql-dog
 
@@ -25,13 +26,13 @@ https://github.com/tkc/sql-dog/blob/master/cmd/lint/main.go#L12-L49
 run query analyzer and show report.
 
 ```bash
-$ go run ./cmd/lint
+$ go run ./cmd/lint/main.go 
 ```
 
 clear general_log table records.
 
 ```bash
-$  go run ./cmd/clean 
+$  go run ./cmd/clean/main.go 
 ```
 
 ### Features

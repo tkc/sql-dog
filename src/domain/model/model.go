@@ -1,6 +1,7 @@
 package model
 
 import (
+	// test_driver
 	_ "github.com/pingcap/parser/test_driver"
 )
 
