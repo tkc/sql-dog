@@ -1,7 +1,6 @@
 package services
 
 import (
-	"log"
 	"sql-dog/src/domain/model"
 	"sql-dog/src/infrastructure/datastore/mysql"
 	"sql-dog/src/usecase/presenter"
@@ -35,7 +34,7 @@ func (s reportService) Show(validator model.Validator) {
 	for _, query := range res {
 		astNode, err := s.analyzerService.Parse(query)
 		if err != nil {
-			log.Print(err)
+			panic(err)
 		}
 		analyzers = append(analyzers, *s.analyzerService.Extract(&astNode, query))
 	}
