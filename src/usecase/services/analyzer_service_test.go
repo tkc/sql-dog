@@ -110,7 +110,7 @@ func TestSelectQueries(t *testing.T) {
 		{
 			query: "select * from table_a as test WHERE `deleted_at` IS NULL",
 			analyzer: model.Analyzer{
-				TableName:      "test",
+				TableName:      "table_a",
 				Operations:     nil,
 				StmtType:       model.StmtTypeSelect,
 				NotNullColumns: []string{"deleted_at"},
