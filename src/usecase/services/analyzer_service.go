@@ -78,7 +78,7 @@ func (v *Visitor) tableName(in ast.Node) {
 				}
 			}
 			if len(TableSource.AsName.String()) > 0 {
-				v.Analyzer.TableName = TableSource.AsName.String()
+				v.Analyzer.TableAsName = TableSource.AsName.String()
 			}
 		}
 	}
@@ -119,7 +119,7 @@ func (v *Visitor) isNullExpr(in ast.Node) {
 		if columnNameExpr, ok := isNullExpr.Expr.(*ast.ColumnNameExpr); ok {
 			v.Analyzer.NotNullColumns = append(
 				v.Analyzer.NotNullColumns,
-				formatColumnName(columnNameExpr.Name.String(), v.Analyzer.TableName))
+				formatColumnName(columnNameExpr.Name.String(), v.Analyzer.TableName, v.Analyzer.TableAsName))
 		}
 	}
 }
@@ -129,7 +129,7 @@ func (v *Visitor) patternInExpr(in ast.Node) {
 		var operation model.AnalyzerOperation
 		operation.Type = model.OpTypeIn
 		if columnNameExpr, ok := patternInExpr.Expr.(*ast.ColumnNameExpr); ok {
-			operation.Column = formatColumnName(columnNameExpr.Name.String(), v.Analyzer.TableName)
+			operation.Column = formatColumnName(columnNameExpr.Name.String(), v.Analyzer.TableName, v.Analyzer.TableAsName)
 		}
 		if valueExpr, ok := patternInExpr.List[0].(*test_driver.ValueExpr); ok {
 			operation.Value = valueExpr.Datum.GetInt64()
@@ -147,7 +147,7 @@ func (v *Visitor) binaryOperationExpr(in ast.Node) {
 			var operation model.AnalyzerOperation
 			operation.Type = model.OpType(binaryOperationExpr.Op.String())
 			if columnNameExpr, ok := binaryOperationExpr.L.(*ast.ColumnNameExpr); ok {
-				operation.Column = formatColumnName(columnNameExpr.Name.String(), v.Analyzer.TableName)
+				operation.Column = formatColumnName(columnNameExpr.Name.String(), v.Analyzer.TableName, v.Analyzer.TableAsName)
 			}
 			if valueExpr, ok := binaryOperationExpr.R.(*test_driver.ValueExpr); ok {
 				operation.Value = valueExpr.Datum.GetValue()
@@ -174,12 +174,15 @@ func (v *Visitor) Leave(in ast.Node) (ast.Node, bool) {
 	return in, true
 }
 
-func formatColumnName(column string, tableName string) string {
+func formatColumnName(column string, tableName string, tableAsName string) string {
 	slice := strings.Split(column, ".")
 	if len(slice) == 1 {
 		return column
 	}
 	if slice[0] == tableName {
+		return slice[1]
+	}
+	if slice[0] == tableAsName {
 		return slice[1]
 	}
 	return column

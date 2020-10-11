@@ -29,8 +29,7 @@ func NewReportService(
 func (s reportService) Show(validator model.Validator) {
 	res, _ := s.generalLogRepository.GetQueries()
 	reportPresenter := presenter.NewReportPresenter()
-
-	var analyzers []model.Analyzer
+	var analyzers = make([]model.Analyzer, len(res))
 	for _, query := range res {
 		astNode, err := s.analyzerService.Parse(query)
 		if err != nil {
@@ -38,6 +37,5 @@ func (s reportService) Show(validator model.Validator) {
 		}
 		analyzers = append(analyzers, *s.analyzerService.Extract(&astNode, query))
 	}
-
 	reportPresenter.Show(s.validatesService.Validates(analyzers, validator))
 }
