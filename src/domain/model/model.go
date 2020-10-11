@@ -1,13 +1,9 @@
 package model
 
-import (
-	// test_driver
-	_ "github.com/pingcap/parser/test_driver"
-)
-
 type Analyzer struct {
 	SQL                string
 	TableName          string
+	TableAsName        string
 	StmtType           StmtType
 	InsertColumns      []string
 	NotNullColumns     []string
