@@ -18,14 +18,14 @@ SET GLOBAL long_query_time = 0;
 ```
 
 ## Database Setting
-To set up validation, 
+To set up database 
 - rename the file `config.sample.yaml` to `config.yaml`
 - modify the yaml settings
 
 https://github.com/tkc/sql-dog/blob/master/config.sample.yaml
 
 ## Validate Setting
-To set up validation, 
+To set up validation
 - rename the file `linter.sample.yaml` to `linter.yaml`
 - modify the yaml settings
 
@@ -48,15 +48,11 @@ $  go run ./cmd/clean/main.go
 ### Features
 
 - Check if a specific where condition set for a query to the target table.
-- Check if the value of the query specified as null to the target table.
 - Check if NOT NUll constraint attached to the target table.
 
 ## Todo
 
-- [ ] read sql setting from config file. it's hard-coded now.
-- [ ] read yaml validate config and convert validate struct.
 - [ ] read other format query log. ex / http request, text log and other.
-- [ ] separate analyzer service depend on report type.
 
 ## Architecture
 
