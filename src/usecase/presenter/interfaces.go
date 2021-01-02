@@ -1,6 +1,6 @@
 package presenter
 
-import "sql-dog/src/domain/model"
+import "github.com/tkc/sql-dog/src/domain/model"
 
 type ReportPresenter interface {
 	Show(reports []model.Report)

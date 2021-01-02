@@ -8,25 +8,15 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewMySQLHandler(username, password, host string, port int) (*gorm.DB, func() error, error) {
+func NewMySQLHandler(username, password, host string, port int, dbName string) (*gorm.DB, func() error, error) {
 	return newSQLHandler(
 		username,
 		password,
 		host,
 		port,
-		"mysql",
+		dbName,
 	)
 }
-
-//func NewMySQLHandler() (*gorm.DB, func() error, error) {
-//	return newSQLHandler(
-//		"root",
-//		"password",
-//		"localhost",
-//		3306,
-//		"mysql",
-//	)
-//}
 
 func newSQLHandler(userName, password, host string, port int, dbname string) (*gorm.DB, func() error, error) {
 	if _, err := time.LoadLocation("UTC"); err != nil {

@@ -1,47 +1,29 @@
 package main
 
 import (
-	"sql-dog/src/domain/model"
-	"sql-dog/src/infrastructure/datastore/mysql"
-	"sql-dog/src/usecase/presenter"
-	"sql-dog/src/usecase/services"
+	"github.com/tkc/sql-dog/config"
+	"github.com/tkc/sql-dog/src/infrastructure/datastore/mysql"
+	"github.com/tkc/sql-dog/src/usecase/presenter"
+	"github.com/tkc/sql-dog/src/usecase/services"
 )
 
-func createValidation() model.Validator {
-	return model.Validator{
-		Ignores: []string{
-			"DELETE FROM Ignores table_name",
-		},
-		Nodes: []model.ValidatorNode{
-			{
-				TableName: "table_name",
-				Operations: []model.ValidateOperation{
-					{
-						Type:   model.OpTypeEq,
-						Column: "require_column_a",
-					},
-					{
-						Type:   model.OpTypeEq,
-						Column: "require_column_b",
-					},
-				},
-				StmtTypePattern: []model.StmtType{
-					model.StmtTypeSelect,
-					model.StmtTypeDelete,
-				},
-			},
-		},
-	}
-}
-
 func main() {
-	v := createValidation()
+	validation, err := config.ReadLintConfig("./linter.yaml")
+	if err != nil {
+		panic(err)
+	}
+
+	conf, err := config.ReadConfig()
+	if err != nil {
+		panic(err)
+	}
 
 	handler, _, _ := mysql.NewMySQLHandler(
-		"root",
-		"password",
-		"localhost",
-		3306)
+		conf.Username,
+		conf.Password,
+		conf.Host,
+		conf.Port,
+		conf.RootDatabase)
 
 	reportService := services.NewReportService(
 		mysql.NewGeneralLogRepository(handler),
@@ -50,5 +32,5 @@ func main() {
 		presenter.NewReportPresenter(),
 	)
 
-	reportService.Show(v)
+	reportService.Show(*validation)
 }

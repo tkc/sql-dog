@@ -1,47 +1,47 @@
 package mysql
 
 import (
-	"sql-dog/src/domain/model"
-
+	"github.com/tkc/sql-dog/src/domain/model"
 	"gorm.io/gorm"
 )
 
-const logTableName = "general_log"
-
-type generalLogRepository struct {
+type emulateRepository struct {
 	db *gorm.DB
 }
 
-type GeneralLogRepository interface {
-	Clear() error
-	GetQueries() ([]string, error)
+type EmulateRepository interface {
+	Tables() ([]string, error)
+	TablesSchemas(tableName string) ([]model.DatabaseDescResult, error)
+	Exec(sql string, arg ...interface{}) error
 }
 
-func NewGeneralLogRepository(
+func NewEmulateRepository(
 	db *gorm.DB,
-) GeneralLogRepository {
-	return &generalLogRepository{
+) EmulateRepository {
+	return &emulateRepository{
 		db: db,
 	}
 }
 
-func (r *generalLogRepository) Clear() error {
-	r.db.Exec("truncate table general_log")
-	return nil
-}
-
-func (r *generalLogRepository) GetQueries() ([]string, error) {
-	var logs []model.GeneralLog
-	if err := r.db.
-		Table(logTableName).
-		Select("command_type, argument").
-		Where("command_type in ('Execute', 'Query')").
-		Find(&logs).Error; err != nil {
+func (r *emulateRepository) Tables() ([]string, error) {
+	var tables []string
+	if err := r.db.Raw("show tables").Scan(&tables).Error; err != nil {
 		return nil, err
 	}
-	var res []string
-	for _, l := range logs {
-		res = append(res, l.Argument)
+	return tables, nil
+}
+
+func (r *emulateRepository) TablesSchemas(tableName string) ([]model.DatabaseDescResult, error) {
+	var results []model.DatabaseDescResult
+	if err := r.db.Raw("desc " + tableName).Scan(&results).Error; err != nil {
+		return nil, err
 	}
-	return res, nil
+	return results, nil
+}
+
+func (r *emulateRepository) Exec(sql string, values ...interface{}) error {
+	if err := r.db.Exec(sql, values...).Error; err != nil {
+		return err
+	}
+	return nil
 }
