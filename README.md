@@ -12,6 +12,9 @@ This app will run an analysis on the log of the sql execution, go to mysql datab
 ```sql
 SET GLOBAL general_log = 'ON';
 SET GLOBAL log_output='TABLE';
+
+SET GLOBAL slow_query_log = 'ON';
+SET GLOBAL long_query_time = 0;
 ```
 
 

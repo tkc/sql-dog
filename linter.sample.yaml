@@ -1,0 +1,29 @@
+ignores:
+  - DELETE FROM table_1
+
+tables:
+  - name: table_1
+    mustSelectColumns:
+      - c_1
+      - c_2
+    stmtTypePatterns:
+      - select
+      - insert
+      - update
+      - delete
+    notNullColumns:
+      - deleted_at
+  - name: table_2
+    mustSelectColumns:
+      - c_1
+      - c_2
+    stmtTypePatterns:
+      - select
+    notNullColumns:
+      - deleted_at
+  - name: table_3
+    mustInsertColumns:
+      - c_1
+      - c_2
+    stmtTypePatterns:
+      - insert

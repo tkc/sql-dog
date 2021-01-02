@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/tkc/sql-dog/config"
 	"github.com/tkc/sql-dog/src/infrastructure/datastore/mysql"
+	"github.com/tkc/sql-dog/src/usecase/services"
 )
 
 func main() {
@@ -16,9 +17,9 @@ func main() {
 		conf.Password,
 		conf.Host,
 		conf.Port,
-		conf.RootDatabase)
-	repo := mysql.NewGeneralLogRepository(handler)
-	if err := repo.Clear(); err != nil {
-		panic(err)
-	}
+		conf.ServiceDatabase)
+
+	repo := mysql.NewEmulateRepository(handler)
+	emulateService := services.NewEmulateService(repo)
+	emulateService.Insert()
 }

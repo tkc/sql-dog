@@ -1,9 +1,9 @@
 package services
 
 import (
-	"sql-dog/src/domain/model"
-	"sql-dog/src/infrastructure/datastore/mysql"
-	"sql-dog/src/usecase/presenter"
+	"github.com/tkc/sql-dog/src/domain/model"
+	"github.com/tkc/sql-dog/src/infrastructure/datastore/mysql"
+	"github.com/tkc/sql-dog/src/usecase/presenter"
 )
 
 type reportService struct {
@@ -27,15 +27,20 @@ func NewReportService(
 }
 
 func (s reportService) Show(validator model.Validator) {
-	res, _ := s.generalLogRepository.GetQueries()
+	queries, _ := s.generalLogRepository.GetQueries()
 	reportPresenter := presenter.NewReportPresenter()
-	var analyzers = make([]model.Analyzer, len(res))
-	for _, query := range res {
+	reportPresenter.Show(s.CreateReport(queries, validator))
+}
+
+func (s reportService) CreateReport(queries []string, validator model.Validator) []model.Report {
+	var analyzers = make([]*model.Analyzer, 0)
+	for _, query := range queries {
+		query := query
 		astNode, err := s.analyzerService.Parse(query)
 		if err != nil {
 			panic(err)
 		}
-		analyzers = append(analyzers, *s.analyzerService.Extract(&astNode, query))
+		analyzers = append(analyzers, s.analyzerService.Extract(&astNode, query)...)
 	}
-	reportPresenter.Show(s.validatesService.Validates(analyzers, validator))
+	return s.validatesService.Validates(analyzers, validator)
 }

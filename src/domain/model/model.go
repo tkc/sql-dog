@@ -1,14 +1,17 @@
 package model
 
+type Table struct {
+	Name   string
+	AsName string
+}
+
 type Analyzer struct {
-	SQL                string
-	TableName          string
-	TableAsName        string
-	StmtType           StmtType
-	InsertColumns      []string
-	NotNullColumns     []string
-	Operations         []AnalyzerOperation
-	NullValueOperation []AnalyzerNullValueOperation
+	SQL            string
+	Tables         []Table
+	StmtType       StmtType
+	InsertColumns  []string
+	NotNullColumns []string
+	Operations     []AnalyzerOperation
 }
 
 type AnalyzerOperation struct {
@@ -17,84 +20,27 @@ type AnalyzerOperation struct {
 	Value  interface{}
 }
 
-type AnalyzerNullValueOperation struct {
-	TableName string
-	Type      OpType
-	Column    string
-	Value     interface{}
-}
-
 type Validator struct {
 	Ignores []string
 	Nodes   []ValidatorNode
 }
 
 type ValidatorNode struct {
-	Messages           []string
-	TableName          string
-	StmtTypePattern    []StmtType
-	Operations         []ValidateOperation
-	NotNullColumns     []ValidateColumn
-	InsertColumns      []ValidateColumn
-	NullValueOperation []AnalyzerNullValueOperation
+	Messages        []string
+	TableName       string
+	StmtTypePattern []StmtType
+	Operations      []string
+	NotNullColumns  []string
+	InsertColumns   []string
 }
 
 type ValidateOperation struct {
 	Type   OpType
 	Column string
-	Valid  bool
 }
 
 type ValidateColumn struct {
 	Column string
-	Valid  bool
-}
-
-func (v ValidatorNode) HasError() bool {
-	if v.HasOperationsError() {
-		return true
-	}
-	if v.HasNotNullColumnsError() {
-		return true
-	}
-	if v.HasInsertColumnsError() {
-		return true
-	}
-	if v.HasNullValueOperationError() {
-		return true
-	}
-	return false
-}
-
-func (v ValidatorNode) HasOperationsError() bool {
-	for _, c := range v.Operations {
-		if !c.Valid {
-			return true
-		}
-	}
-	return false
-}
-
-func (v ValidatorNode) HasNotNullColumnsError() bool {
-	for _, c := range v.NotNullColumns {
-		if !c.Valid {
-			return true
-		}
-	}
-	return false
-}
-
-func (v ValidatorNode) HasInsertColumnsError() bool {
-	for _, c := range v.InsertColumns {
-		if !c.Valid {
-			return true
-		}
-	}
-	return false
-}
-
-func (v ValidatorNode) HasNullValueOperationError() bool {
-	return len(v.NullValueOperation) > 0
 }
 
 type Report struct {
@@ -117,4 +63,13 @@ const StmtTypeDelete StmtType = "delete"
 type GeneralLog struct {
 	CommandType string
 	Argument    string
+}
+
+type DatabaseDescResult struct {
+	Field   string
+	Type    string
+	Null    string
+	Key     string
+	Default string
+	Extra   string
 }
