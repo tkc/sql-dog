@@ -17,12 +17,19 @@ SET GLOBAL slow_query_log = 'ON';
 SET GLOBAL long_query_time = 0;
 ```
 
+## Database Setting
+To set up validation, 
+- rename the file `config.sample.yaml` to `config.yaml`
+- modify the yaml settings
+
+https://github.com/tkc/sql-dog/blob/master/config.sample.yaml
 
 ## Validate Setting
+To set up validation, 
+- rename the file `linter.sample.yaml` to `linter.yaml`
+- modify the yaml settings
 
-The user's validation settings are still hard-coded. Please change the following settings from the source code.
-
-https://github.com/tkc/sql-dog/blob/master/cmd/lint/main.go#L12-L49
+https://github.com/tkc/sql-dog/blob/master/linter.sample.yaml
 
 ## Run
 
