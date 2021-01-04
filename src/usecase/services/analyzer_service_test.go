@@ -335,6 +335,26 @@ func TestSelectQueries(t *testing.T) {
 					NotNullColumns: nil,
 				}},
 		},
+		{
+			query: `SELECT * FROM t_a WHERE c_1 like '%' AND c_2 like '%'`,
+			expect: []*model.Analyzer{{
+				Tables: []model.Table{{Name: "t_a"}},
+				Operations: []model.AnalyzerOperation{
+					{
+						Type:   model.OpTypeLike,
+						Column: "c_1",
+						Value:  "%",
+					},
+					{
+						Type:   model.OpTypeLike,
+						Column: "c_2",
+						Value:  "%",
+					},
+				},
+
+				StmtType: model.StmtTypeSelect,
+			}},
+		},
 	}
 
 	analyzerService := NewAnalyzerService()

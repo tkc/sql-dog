@@ -217,6 +217,7 @@ type OperationExprVisitor struct {
 }
 
 func (v *OperationExprVisitor) Enter(in ast.Node) (ast.Node, bool) {
+	// BinaryOperationExpr
 	if binaryOperationExpr, ok := in.(*ast.BinaryOperationExpr); ok {
 		if binaryOperationExpr.Op.String() == string(model.OpTypeEq) {
 			var operation model.AnalyzerOperation
@@ -237,6 +238,20 @@ func (v *OperationExprVisitor) Enter(in ast.Node) (ast.Node, bool) {
 			v.Operations = append(v.Operations, operation)
 		}
 	}
+
+	// PatternLikeExpr
+	if patternLikeExpr, ok := in.(*ast.PatternLikeExpr); ok {
+		var operation model.AnalyzerOperation
+		operation.Type = model.OpTypeLike
+		if columnNameExpr, ok := patternLikeExpr.Expr.(*ast.ColumnNameExpr); ok {
+			operation.Column = columnNameExpr.Name.Name.String()
+		}
+		if valueExpr, ok := patternLikeExpr.Pattern.(*test_driver.ValueExpr); ok {
+			operation.Value = valueExpr.GetString()
+		}
+		v.Operations = append(v.Operations, operation)
+	}
+
 	return in, false
 }
 
