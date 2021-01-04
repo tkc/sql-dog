@@ -52,6 +52,7 @@ type OpType string
 
 const OpTypeEq OpType = "eq"
 const OpTypeIn OpType = "in"
+const OpTypeLike OpType = "like"
 
 type StmtType string
 
