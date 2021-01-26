@@ -1,5 +1,6 @@
 ![sql-dog](https://github.com/tkc/sql-dog/workflows/sql-dog/badge.svg?branch=master)
 ![reviewdog](https://github.com/tkc/sql-dog/workflows/reviewdog/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/tkc/sql-dog)](https://goreportcard.com/report/github.com/tkc/sql-dog)
 
 # sql-dog
 
