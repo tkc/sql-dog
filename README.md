@@ -20,14 +20,14 @@ SET GLOBAL long_query_time = 0;
 
 ## Database Setting
 To set up database 
-- rename the file `config.sample.yaml` to `config.yaml`
+- rename `config.sample.yaml` to `config.yaml`
 - modify the yaml settings
 
 https://github.com/tkc/sql-dog/blob/master/config.sample.yaml
 
 ## Validate Setting
 To set up validation
-- rename the file `linter.sample.yaml` to `linter.yaml`
+- rename `linter.sample.yaml` to `linter.yaml`
 - modify the yaml settings
 
 https://github.com/tkc/sql-dog/blob/master/linter.sample.yaml
