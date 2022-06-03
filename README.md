@@ -3,8 +3,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/tkc/sql-dog)](https://goreportcard.com/report/github.com/tkc/sql-dog)
 
 # sql-dog
-
-Parse the query log in sql and output a report with specific conditions.
+Analyzes SQL query logs and issues a warning if a condition specified in the query is not set.
 
 ## MySQL Table Setting
 
