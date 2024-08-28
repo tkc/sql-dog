@@ -3,7 +3,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/tkc/sql-dog)](https://goreportcard.com/report/github.com/tkc/sql-dog)
 
 # sql-dog
-Analyzes SQL query logs and issues a warning if a condition specified in the query is not set.
+Analyzes SQL query logs and triggers a warning if a specified condition is missing from the query.
 
 ## MySQL Table Setting
 
