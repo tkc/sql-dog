@@ -1,6 +1,8 @@
 package services
 
 import (
+	"context"
+
 	"github.com/tkc/sql-dog/src/domain/model"
 	"github.com/tkc/sql-dog/src/infrastructure/datastore/mysql"
 	"github.com/tkc/sql-dog/src/usecase/presenter"
@@ -26,10 +28,15 @@ func NewReportService(
 	}
 }
 
-func (s reportService) Show(validator model.Validator) {
-	queries, _ := s.generalLogRepository.GetQueries()
+func (s reportService) Show(validator model.Validator) error {
+	ctx := context.Background()
+	queries, err := s.generalLogRepository.GetQueries(ctx)
+	if err != nil {
+		return err
+	}
 	reportPresenter := presenter.NewReportPresenter()
 	reportPresenter.Show(s.CreateReport(queries, validator))
+	return nil
 }
 
 func (s reportService) CreateReport(queries []string, validator model.Validator) []model.Report {
@@ -38,7 +45,8 @@ func (s reportService) CreateReport(queries []string, validator model.Validator)
 		query := query
 		astNode, err := s.analyzerService.Parse(query)
 		if err != nil {
-			panic(err)
+			// Skip queries that can't be parsed instead of panicking
+			continue
 		}
 		analyzers = append(analyzers, s.analyzerService.Extract(&astNode, query)...)
 	}

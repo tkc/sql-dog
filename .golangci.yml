@@ -1,15 +1,14 @@
 linters-settings:
-  # depguard:
-  #     list-type: blacklist
-  #     packages:
-  #         - github.com/sirupsen/logrus
-  #     packages-with-error-message:
-  #         - {github.com/sirupsen/logrus: 'logging is allowed only by logutils.Log'}
-  # dupl:
-  #     threshold: 100
-    funlen:
-      lines: 500
-      statements: 80
+  depguard:
+    list-type: denylist
+    include-go-root: false
+    packages:
+      # 特定の禁止したいパッケージがあればここに記述
+    packages-with-error-message:
+      # メッセージ付きで禁止したいパッケージがあればここに記述
+  funlen:
+    lines: 500
+    statements: 80
   # goconst:
   #     min-len: 2
   #     min-occurrences: 2
@@ -52,7 +51,6 @@ linters:
   disable-all: true
   enable:
     - bodyclose
-    - deadcode
     - depguard
     - dogsled
     - dupl
@@ -64,28 +62,22 @@ linters:
     - gocyclo
     - gofmt
     - goimports
-    - golint
-    - gomnd
     - goprintffuncname
     - gosec
     - gosimple
     - govet
     - ineffassign
-    - interfacer
-#    - lll
     - misspell
     - nakedret
     - rowserrcheck
-    - scopelint
     - staticcheck
-    - structcheck
     - stylecheck
     - typecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
     - whitespace
+    - revive    # replaces golint
 
 # issues:
 #     exclude-rules:

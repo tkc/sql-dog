@@ -1,9 +1,9 @@
 package config
 
 import (
-	"io/ioutil"
+	"os"
 
-	"github.com/goccy/go-yaml"
+	yaml "github.com/goccy/go-yaml"
 )
 
 type Config struct {
@@ -16,13 +16,13 @@ type Config struct {
 }
 
 func ReadConfig() (*Config, error) {
-	buf, err := ioutil.ReadFile("./config.yaml")
+	buf, err := os.ReadFile("./config.yaml")
 	if err != nil {
 		return nil, err
 	}
 	var config Config
 	if err := yaml.Unmarshal(buf, &config); err != nil {
-		panic(err)
+		return nil, err
 	}
 	return &config, nil
 }

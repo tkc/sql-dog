@@ -1,9 +1,9 @@
 package config
 
 import (
-	"io/ioutil"
+	"os"
 
-	"github.com/goccy/go-yaml"
+	yaml "github.com/goccy/go-yaml"
 	"github.com/tkc/sql-dog/src/domain/model"
 )
 
@@ -41,13 +41,13 @@ func (c *LintConfig) ConvertToValidators() (*model.Validator, error) {
 }
 
 func ReadLintConfig(path string) (*model.Validator, error) {
-	buf, err := ioutil.ReadFile(path)
+	buf, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 	var config LintConfig
 	if err := yaml.Unmarshal(buf, &config); err != nil {
-		panic(err)
+		return nil, err
 	}
 	return config.ConvertToValidators()
 }

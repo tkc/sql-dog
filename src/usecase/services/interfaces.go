@@ -15,7 +15,7 @@ type EmulateService interface {
 }
 
 type ReportService interface {
-	Show(validator model.Validator)
+	Show(validator model.Validator) error
 	CreateReport(queries []string, validator model.Validator) []model.Report
 }
 
