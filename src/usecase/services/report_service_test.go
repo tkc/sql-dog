@@ -119,10 +119,10 @@ func TestReportService_CreateReport(t *testing.T) {
 	}
 
 	controller := gomock.NewController(t)
-	mock_mysql.NewMockGeneralLogRepository(controller)
+	mockRepo := mock_mysql.NewMockGeneralLogRepository(controller)
 
 	reportService := NewReportService(
-		mock_mysql.NewMockGeneralLogRepository(controller),
+		mockRepo,
 		NewAnalyzerService(),
 		NewValidatesService(),
 		presenter.NewReportPresenter())

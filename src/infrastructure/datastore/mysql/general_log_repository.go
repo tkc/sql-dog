@@ -1,47 +1,53 @@
 package mysql
 
 import (
+	"context"
+
 	"github.com/tkc/sql-dog/src/domain/model"
 	"gorm.io/gorm"
 )
 
-type emulateRepository struct {
+const logTableName = "general_log"
+
+type generalLogRepository struct {
 	db *gorm.DB
 }
 
-type EmulateRepository interface {
-	Tables() ([]string, error)
-	TablesSchemas(tableName string) ([]model.DatabaseDescResult, error)
-	Exec(sql string, arg ...interface{}) error
+//go:generate mockgen -destination mock/general_log_repository.go github.com/tkc/sql-dog/src/infrastructure/datastore/mysql GeneralLogRepository
+type GeneralLogRepository interface {
+	Clear(ctx context.Context) error
+	GetQueries(ctx context.Context) ([]string, error)
 }
 
-func NewEmulateRepository(
+func NewGeneralLogRepository(
 	db *gorm.DB,
-) EmulateRepository {
-	return &emulateRepository{
+) GeneralLogRepository {
+	return &generalLogRepository{
 		db: db,
 	}
 }
 
-func (r *emulateRepository) Tables() ([]string, error) {
-	var tables []string
-	if err := r.db.Raw("show tables").Scan(&tables).Error; err != nil {
-		return nil, err
-	}
-	return tables, nil
-}
-
-func (r *emulateRepository) TablesSchemas(tableName string) ([]model.DatabaseDescResult, error) {
-	var results []model.DatabaseDescResult
-	if err := r.db.Raw("desc " + tableName).Scan(&results).Error; err != nil {
-		return nil, err
-	}
-	return results, nil
-}
-
-func (r *emulateRepository) Exec(sql string, values ...interface{}) error {
-	if err := r.db.Exec(sql, values...).Error; err != nil {
+func (r *generalLogRepository) Clear(ctx context.Context) error {
+	if err := r.db.WithContext(ctx).Exec("TRUNCATE TABLE general_log").Error; err != nil {
 		return err
 	}
 	return nil
+}
+
+func (r *generalLogRepository) GetQueries(ctx context.Context) ([]string, error) {
+	var logs []model.GeneralLog
+	if err := r.db.WithContext(ctx).
+		Table(logTableName).
+		Select("command_type, argument").
+		Where("command_type IN (?, ?)", "Execute", "Query").
+		Find(&logs).Error; err != nil {
+		return nil, err
+	}
+
+	// より効率的なメモリ使用のために事前にキャパシティを指定
+	queries := make([]string, 0, len(logs))
+	for _, l := range logs {
+		queries = append(queries, l.Argument)
+	}
+	return queries, nil
 }

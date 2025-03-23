@@ -5,32 +5,25 @@ import (
 	"gorm.io/gorm"
 )
 
-const logTableName = "general_log"
-
-type generalLogRepository struct {
+type emulateRepository struct {
 	db *gorm.DB
 }
 
-//go:generate mockgen -destination mock/general_log_repository.go github.com/tkc/sql-dog/src/infrastructure/datastore/mysql GeneralLogRepository
-type GeneralLogRepository interface {
-	Clear() error
-	GetQueries() ([]string, error)
+type EmulateRepository interface {
+	Tables() ([]string, error)
+	TablesSchemas(tableName string) ([]model.DatabaseDescResult, error)
+	Exec(sql string, arg ...interface{}) error
 }
 
-func NewGeneralLogRepository(
+func NewEmulateRepository(
 	db *gorm.DB,
-) GeneralLogRepository {
-	return &generalLogRepository{
+) EmulateRepository {
+	return &emulateRepository{
 		db: db,
 	}
 }
 
-func (r *generalLogRepository) Clear() error {
-	r.db.Exec("truncate table general_log")
-	return nil
-}
-
-func (r *generalLogRepository) Tables() ([]string, error) {
+func (r *emulateRepository) Tables() ([]string, error) {
 	var tables []string
 	if err := r.db.Raw("SHOW TABLES").Scan(&tables).Error; err != nil {
 		return nil, err
@@ -38,26 +31,17 @@ func (r *generalLogRepository) Tables() ([]string, error) {
 	return tables, nil
 }
 
-func (r *generalLogRepository) TablesSchemas(tableName string) ([]model.DatabaseDescResult, error) {
+func (r *emulateRepository) TablesSchemas(tableName string) ([]model.DatabaseDescResult, error) {
 	var results []model.DatabaseDescResult
-	if err := r.db.Raw("desc ?", tableName).Scan(&results).Error; err != nil {
+	if err := r.db.Raw("DESC ?", tableName).Scan(&results).Error; err != nil {
 		return nil, err
 	}
 	return results, nil
 }
 
-func (r *generalLogRepository) GetQueries() ([]string, error) {
-	var logs []model.GeneralLog
-	if err := r.db.
-		Table(logTableName).
-		Select("command_type, argument").
-		Where("command_type in ('Execute', 'Query')").
-		Find(&logs).Error; err != nil {
-		return nil, err
+func (r *emulateRepository) Exec(sql string, values ...interface{}) error {
+	if err := r.db.Exec(sql, values...).Error; err != nil {
+		return err
 	}
-	var res []string
-	for _, l := range logs {
-		res = append(res, l.Argument)
-	}
-	return res, nil
+	return nil
 }

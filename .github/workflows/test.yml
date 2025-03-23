@@ -1,28 +1,59 @@
 name: sql-dog
-on: [push]
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
 
 jobs:
   test:
+    name: Build and Test
     runs-on: ubuntu-latest
     services:
       mysql:
-        image: mysql:5.7
+        image: mysql:8.0
         env:
-          MYSQL_USER: root
           MYSQL_ROOT_PASSWORD: admin
           MYSQL_DATABASE: sql-dog
         ports:
-          - 3306
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h localhost"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
-      - name: Set up Go 1.13
-        uses: actions/setup-go@v1
+      - name: Set up Go
+        uses: actions/setup-go@v4
         with:
-          go-version: 1.13.4
-        id: go
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v2
-      - name: Get dependencies
+          go-version: '1.22'
+          cache: true
+
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
         run: go mod download
-      - name: Test
-        run: go test ./...
+
+      - name: Run linter
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
+          $(go env GOPATH)/bin/golangci-lint run --timeout=5m --no-config --disable-all --enable=gofmt,govet,errcheck
+
+      - name: Run tests
+        run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+        env:
+          DB_HOST: localhost
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASSWORD: admin
+          DB_NAME: sql-dog
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.txt
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false

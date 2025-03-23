@@ -94,7 +94,7 @@ func (s emulateService) bulkInsert(tableName string, schemes []model.DatabaseDes
 
 const varcharStr = `varchar`
 
-var regexpVarcharStr, _ = regexp.Compile(varcharStr)
+var regexpVarcharStr = regexp.MustCompile(varcharStr)
 
 func IsStringFieldType(typeStr string) bool {
 	if regexpVarcharStr.MatchString(typeStr) {
@@ -108,7 +108,7 @@ func IsStringFieldType(typeStr string) bool {
 
 const intStr = `int`
 
-var regexpIntStr, _ = regexp.Compile(intStr)
+var regexpIntStr = regexp.MustCompile(intStr)
 
 func IsIntFieldType(typeStr string) bool {
 	return regexpIntStr.MatchString(typeStr)
@@ -116,7 +116,7 @@ func IsIntFieldType(typeStr string) bool {
 
 const tinyIntStr = `tinyint`
 
-var regexpTinyIntStr, _ = regexp.Compile(tinyIntStr)
+var regexpTinyIntStr = regexp.MustCompile(tinyIntStr)
 
 func IsTinyIntFieldType(typeStr string) bool {
 	return regexpTinyIntStr.MatchString(typeStr)
@@ -131,8 +131,8 @@ func value(fieldType string) interface{} {
 			return 1
 		}
 
-		max := 1000000000
-		n, err := rand.Int(rand.Reader, big.NewInt(int64(max)))
+		maxVal := 1000000000
+		n, err := rand.Int(rand.Reader, big.NewInt(int64(maxVal)))
 		if err != nil {
 			panic(err)
 		}
@@ -144,10 +144,10 @@ func value(fieldType string) interface{} {
 	return nil
 }
 
-func placeholder(len int) string {
+func placeholder(length int) string {
 	placeholder := "("
-	for i := 0; i < len; i++ {
-		if i < len-1 {
+	for i := 0; i < length; i++ {
+		if i < length-1 {
 			placeholder += " ?,"
 		} else {
 			placeholder += " ?"
@@ -157,13 +157,13 @@ func placeholder(len int) string {
 }
 
 func columns(schemes []model.DatabaseDescResult) string {
-	len := len(schemes) - 1
+	length := len(schemes) - 1
 	placeholder := "("
 	for i, v := range schemes {
 		if v.Key == "PRI" {
 			continue
 		}
-		if i < len {
+		if i < length {
 			placeholder += v.Field + ","
 		} else {
 			placeholder += v.Field
