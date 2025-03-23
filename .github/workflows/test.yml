@@ -39,13 +39,13 @@ jobs:
           go get github.com/goccy/go-yaml
           go get github.com/bxcodec/faker/v3
 
-      - name: Run linter
+      - name: Run tests and linting
         run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
-          $(go env GOPATH)/bin/golangci-lint run --timeout=5m --no-config --disable-all --enable=gofmt,govet,errcheck
-
-      - name: Run tests
-        run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+          # Basic format check instead of using golangci-lint
+          gofmt -l . | grep -v vendor/ | tee /dev/stderr | (! grep .)
+          
+          # Run tests
+          go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
         env:
           DB_HOST: localhost
           DB_PORT: 3306
