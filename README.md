@@ -251,6 +251,13 @@ make test-race
 make test-cover
 ```
 
+### Formatting Code
+
+```bash
+# Format all Go code
+make fmt
+```
+
 ### Running Linter
 
 ```bash

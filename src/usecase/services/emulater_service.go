@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bxcodec/faker/v3"
+	faker "github.com/bxcodec/faker/v3"
 	"github.com/tkc/sql-dog/src/domain/model"
 	"github.com/tkc/sql-dog/src/infrastructure/datastore/mysql"
 	"golang.org/x/sync/errgroup"

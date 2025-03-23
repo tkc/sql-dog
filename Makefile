@@ -1,3 +1,7 @@
+# Formatting tasks
+fmt:
+	go fmt ./...
+
 # Linting tasks
 lint:
 	$(HOME)/go/bin/golangci-lint run --no-config --disable-all --enable=gofmt,govet,errcheck
@@ -27,4 +31,4 @@ install:
 clean:
 	rm -rf bin/
 
-.PHONY: lint test test-race test-cover build install clean
+.PHONY: fmt lint test test-race test-cover build install clean
